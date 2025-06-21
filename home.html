@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tamil Nadu Engineering College Eligibility Checker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 10px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px 15px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            color: #4a5568;
+            font-size: 2rem;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        header p {
+            color: #718096;
+            font-size: 1rem;
+        }
+
+        .search-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px 15px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 0.85rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            background: white;
+            width: 100%;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+
+        .search-btn {
+            grid-column: 1 / -1;
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .results-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 35px;
+            font-size: 1.1rem;
+            color: #667eea;
+        }
+
+        .results-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .results-header h3 {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .results-header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            line-height: 1.4;
+        }
+
+        .results-table-container {
+            overflow-x: auto;
+            max-height: 600px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+            min-width: 800px;
+        }
+
+        .results-table th {
+            background: #f8fafc;
+            padding: 10px 6px;
+            text-align: left;
+            font-weight: 600;
+            color: #4a5568;
+            border-bottom: 2px solid #e2e8f0;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            font-size: 0.75rem;
+            white-space: nowrap;
+        }
+
+        .results-table td {
+            padding: 8px 6px;
+            border-bottom: 1px solid #e2e8f0;
+            vertical-align: top;
+        }
+
+        .results-table tr:hover {
+            background: #e6ffed !important;
+        }
+
+        .college-name {
+            max-width: 280px;
+            word-wrap: break-word;
+            font-weight: 500;
+            font-size: 0.75rem;
+            line-height: 1.3;
+        }
+
+        .branch-name {
+            max-width: 200px;
+            word-wrap: break-word;
+            font-weight: 500;
+            color: #667eea;
+            font-size: 0.75rem;
+            line-height: 1.3;
+        }
+
+        .cutoff-rank {
+            font-weight: 700;
+            color: #e53e3e;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .prediction-cell {
+            text-align: center;
+            min-width: 90px;
+        }
+
+        .prediction-probability {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #2b6cb0;
+            margin-bottom: 3px;
+        }
+
+        .prediction-details {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            font-size: 0.7rem;
+            line-height: 16px;
+            cursor: pointer;
+            font-weight: bold;
+            position: relative;
+        }
+
+        .prediction-details:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2d3748;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            white-space: nowrap;
+            font-size: 0.75rem;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            max-width: 250px;
+            white-space: normal;
+            width: max-content;
+        }
+
+        .prediction-details:hover::before {
+            content: '';
+            position: absolute;
+            bottom: 19px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid #2d3748;
+            z-index: 1000;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            gap: 15px;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e2e8f0;
+            flex-wrap: wrap;
+        }
+
+        .pagination-btn {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .pagination-btn:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .pagination-info {
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 0.85rem;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 50px 20px;
+            color: #718096;
+        }
+
+        .no-results h3 {
+            color: #4a5568;
+            margin-bottom: 12px;
+            font-size: 1.2rem;
+        }
+
+        .page-counter {
+            text-align: center;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #718096;
+            font-size: 0.8rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        /* Mobile Specific Optimizations */
+        @media (max-width: 768px) {
+            .container { 
+                padding: 8px; 
+                max-width: 100%;
+            }
+            
+            header {
+                padding: 15px 10px;
+                margin-bottom: 15px;
+            }
+            
+            header h1 { 
+                font-size: 1.6rem; 
+                line-height: 1.2;
+            }
+            
+            header p { 
+                font-size: 0.9rem; 
+            }
+            
+            .search-section { 
+                grid-template-columns: 1fr; 
+                padding: 15px 10px;
+                gap: 10px;
+                margin-bottom: 15px;
+            }
+            
+            .form-group {
+                width: 100%;
+            }
+            
+            .form-group input,
+            .form-group select {
+                padding: 12px 10px;
+                font-size: 16px; /* Prevents iOS zoom */
+                width: 100%;
+                box-sizing: border-box;
+            }
+            
+            .results-table-container {
+                overflow-x: scroll;
+                -webkit-overflow-scrolling: touch;
+                border-left: 1px solid #e2e8f0;
+                border-right: 1px solid #e2e8f0;
+            }
+            
+            .results-table { 
+                font-size: 0.7rem;
+                min-width: 700px;
+            }
+            
+            .results-table th,
+            .results-table td {
+                padding: 6px 4px;
+            }
+            
+            .college-name { 
+                max-width: 200px; 
+                font-size: 0.65rem;
+            }
+            
+            .branch-name { 
+                max-width: 150px; 
+                font-size: 0.65rem;
+            }
+            
+            .prediction-cell { 
+                min-width: 70px; 
+            }
+            
+            .prediction-probability { 
+                font-size: 0.8rem; 
+            }
+            
+            .pagination { 
+                flex-direction: column; 
+                gap: 8px; 
+                padding: 10px;
+            }
+            
+            .pagination-btn { 
+                padding: 10px 20px; 
+                font-size: 0.85rem; 
+                width: 100%;
+                max-width: 200px;
+            }
+            
+            .results-header {
+                padding: 15px 10px;
+            }
+            
+            .results-header h3 {
+                font-size: 1.1rem;
+            }
+            
+            .results-header p {
+                font-size: 0.8rem;
+                line-height: 1.3;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header h1 { 
+                font-size: 1.4rem; 
+            }
+            
+            .search-section {
+                padding: 12px 8px;
+            }
+            
+            .results-table { 
+                min-width: 600px;
+                font-size: 0.65rem;
+            }
+            
+            .college-name { 
+                max-width: 150px; 
+                font-size: 0.6rem;
+            }
+            
+            .branch-name { 
+                max-width: 120px; 
+                font-size: 0.6rem;
+            }
+            
+            .prediction-details:hover::after {
+                max-width: 200px;
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Tamil Nadu Engineering College Eligibility Checker</h1>
+            <p>Find eligible colleges with 2025 predictions based on your rank and category</p>
+        </header>
+
+        <div class="search-section">
+            <div class="form-group">
+                <label for="year">Select Year:</label>
+                <select id="year" required>
+                    <option value="">Select Year</option>
+                    <option value="2024">2024</option>
+                    <option value="2023">2023</option>
+                    <option value="2022">2022</option>
+                    <option value="2021">2021</option>
+                    <option value="2020">2020</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="category">Category (Required):</label>
+                <select id="category" required>
+                    <option value="">Select Category</option>
+                    <option value="OC">OC</option>
+                    <option value="BC">BC</option>
+                    <option value="BCM">BCM</option>
+                    <option value="MBC">MBC</option>
+                    <option value="MBCDNC">MBCDNC</option>
+                    <option value="MBCV">MBCV</option>
+                    <option value="SC">SC</option>
+                    <option value="SCA">SCA</option>
+                    <option value="ST">ST</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="rank">Your Rank:</label>
+                <input type="number" id="rank" placeholder="Enter your rank" min="1">
+            </div>
+
+            <div class="form-group">
+                <label for="college">College (Optional):</label>
+                <select id="college">
+                    <option value="">All Colleges</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="branch">Branch (Optional):</label>
+                <select id="branch">
+                    <option value="">All Branches</option>
+                </select>
+            </div>
+
+            <button onclick="searchColleges()" class="search-btn">Search Eligible Colleges</button>
+        </div>
+
+        <div class="results-section" id="results">
+            <div class="loading" id="loading" style="display: none;">
+                <p>Searching...</p>
+            </div>
+            <div id="results-content"></div>
+        </div>
+    </div>
+
+    <script>
+        let collegeData = {};
+        let allBranches = new Set();
+        let allColleges = new Map(); // Map: collegeCode -> {code, name}
+        let dataLoadStatus = 'loading';
+        let currentResults = [];
+        let currentPage = 0;
+        const resultsPerPage = 20;
+        let pageViews = 25200;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDataFromFiles();
+            updatePageViews();
+        });
+
+        function updatePageViews() {
+            pageViews += Math.floor(Math.random() * 3) + 1;
+            localStorage.setItem('pageViews', pageViews);
+        }
+
+        async function loadDataFromFiles() {
+            const years = ['2020', '2021', '2022', '2023', '2024'];
+            let loadedCount = 0;
+            let totalFiles = years.length;
+            
+            for (const year of years) {
+                try {
+                    const response = await fetch(`./Input marks/${year}_rank.json`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const data = await response.json();
+                    collegeData[year] = data;
+                    loadedCount++;
+                    
+                    data.forEach(college => {
+                        if (college.brn && college.brn.trim()) {
+                            allBranches.add(college.brn.trim());
+                        }
+                        if (college.coc && college.con && college.con.trim()) {
+                            // Use college code as key to ensure uniqueness
+                            const collegeCode = college.coc;
+                            const collegeName = college.con.trim();
+                            allColleges.set(collegeCode, {
+                                code: collegeCode,
+                                name: collegeName
+                            });
+                        }
+                    });
+                    
+                } catch (error) {
+                    console.error(`Error loading ${year} data:`, error);
+                    dataLoadStatus = 'error';
+                    return;
+                }
+            }
+            
+            if (loadedCount === totalFiles) {
+                populateBranchDropdown();
+                populateCollegeDropdown();
+                dataLoadStatus = 'loaded';
+            }
+        }
+
+        function populateBranchDropdown() {
+            const branchSelect = document.getElementById('branch');
+            const sortedBranches = Array.from(allBranches).sort();
+            
+            branchSelect.innerHTML = '<option value="">All Branches</option>';
+            
+            sortedBranches.forEach(branch => {
+                const option = document.createElement('option');
+                option.value = branch;
+                option.textContent = branch;
+                branchSelect.appendChild(option);
+            });
+        }
+
+        function populateCollegeDropdown() {
+            const collegeSelect = document.getElementById('college');
+            // Get unique colleges and sort by college code
+            const uniqueColleges = Array.from(allColleges.values()).sort((a, b) => a.code - b.code);
+            
+            collegeSelect.innerHTML = '<option value="">All Colleges</option>';
+            
+            uniqueColleges.forEach(college => {
+                const option = document.createElement('option');
+                option.value = college.code; // Use college code as value for searching
+                
+                // Display format: "Code - College Name"
+                const displayText = `${college.code} - ${college.name}`;
+                const displayName = displayText.length > 80 ? displayText.substring(0, 77) + '...' : displayText;
+                
+                option.textContent = displayName;
+                option.title = displayText; // Full text on hover
+                collegeSelect.appendChild(option);
+            });
+        }
+
+        function calculate2025Prediction(collegeCode, branchCode, category, userRank) {
+            const years = ['2020', '2021', '2022', '2023', '2024'];
+            let cutoffData = [];
+            
+            years.forEach(year => {
+                if (collegeData[year]) {
+                    const college = collegeData[year].find(c => c.coc === collegeCode && c.brc === branchCode);
+                    if (college && college[category] && college[category] !== "") {
+                        const cutoff = parseInt(college[category]);
+                        if (!isNaN(cutoff)) {
+                            cutoffData.push({ year: parseInt(year), cutoff: cutoff });
+                        }
+                    }
+                }
+            });
+            
+            if (cutoffData.length < 3) {
+                return { probability: "N/A", trend: "Insufficient data" };
+            }
+            
+            cutoffData.sort((a, b) => a.year - b.year);
+            
+            let n = cutoffData.length;
+            let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
+            
+            cutoffData.forEach((data, index) => {
+                let x = index;
+                let y = data.cutoff;
+                sumX += x;
+                sumY += y;
+                sumXY += x * y;
+                sumXX += x * x;
+            });
+            
+            let slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+            let intercept = (sumY - slope * sumX) / n;
+            
+            let predicted2025Cutoff = intercept + slope * (n);
+            
+            let probability, trend;
+            
+            if (slope > 20) {
+                trend = "Rising Fast";
+            } else if (slope > 5) {
+                trend = "Rising";
+            } else if (slope > -5) {
+                trend = "Stable";
+            } else if (slope > -20) {
+                trend = "Declining";
+            } else {
+                trend = "Declining Fast";
+            }
+            
+            let probValue;
+            if (userRank <= predicted2025Cutoff * 0.8) {
+                probValue = 95;
+            } else if (userRank <= predicted2025Cutoff * 0.9) {
+                probValue = 85;
+            } else if (userRank <= predicted2025Cutoff) {
+                probValue = 70;
+            } else if (userRank <= predicted2025Cutoff * 1.1) {
+                probValue = 50;
+            } else if (userRank <= predicted2025Cutoff * 1.2) {
+                probValue = 30;
+            } else if (userRank <= predicted2025Cutoff * 1.3) {
+                probValue = 15;
+            } else {
+                probValue = 5;
+            }
+            
+            probability = probValue < 20 ? "N/A" : probValue + "%";
+            
+            return {
+                probability: probability,
+                trend: trend,
+                predictedCutoff: Math.round(predicted2025Cutoff),
+                historicalData: cutoffData.map(d => `${d.year}: ${d.cutoff}`).join(', ')
+            };
+        }
+
+        function searchColleges() {
+            if (dataLoadStatus !== 'loaded') {
+                alert('Data is still loading or failed to load. Please wait or refresh the page.');
+                return;
+            }
+            
+            const year = document.getElementById('year').value;
+            const category = document.getElementById('category').value;
+            const rank = parseInt(document.getElementById('rank').value);
+            const selectedBranch = document.getElementById('branch').value;
+            const selectedCollegeCode = document.getElementById('college').value;
+            
+            if (!year) {
+                alert('Please select a year');
+                return;
+            }
+            
+            if (!category) {
+                alert('Please select a category (Required)');
+                return;
+            }
+            
+            if (!rank || rank <= 0) {
+                alert('Please enter a valid rank');
+                return;
+            }
+            
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results-content').innerHTML = '';
+            
+            setTimeout(() => {
+                const results = findEligibleColleges(year, category, rank, selectedBranch, selectedCollegeCode);
+                currentResults = results;
+                currentPage = 0;
+                displayResults(results, category, rank, selectedBranch, selectedCollegeCode);
+                document.getElementById('loading').style.display = 'none';
+            }, 500);
+        }
+
+        function findEligibleColleges(year, category, userRank, selectedBranch, selectedCollegeCode) {
+            const data = collegeData[year];
+            if (!data) return [];
+            
+            let eligibleColleges = [];
+            
+            data.forEach(college => {
+                const cutoffRank = college[category];
+                
+                if (!cutoffRank || cutoffRank === "") return;
+                
+                const cutoffRankNum = parseInt(cutoffRank);
+                if (isNaN(cutoffRankNum)) return;
+                
+                if (userRank <= cutoffRankNum) {
+                    if (selectedBranch && college.brn !== selectedBranch) {
+                        return;
+                    }
+                    
+                    // Filter by college code instead of college name
+                    if (selectedCollegeCode && college.coc != selectedCollegeCode) {
+                        return;
+                    }
+                    
+                    const prediction = calculate2025Prediction(college.coc, college.brc, category, userRank);
+                    
+                    eligibleColleges.push({
+                        collegeCode: college.coc,
+                        collegeName: college.con,
+                        branchCode: college.brc,
+                        branchName: college.brn,
+                        cutoffRank: cutoffRankNum,
+                        prediction2025: prediction
+                    });
+                }
+            });
+            
+            eligibleColleges.sort((a, b) => a.cutoffRank - b.cutoffRank);
+            return eligibleColleges;
+        }
+
+        function displayResults(results, category, userRank, selectedBranch, selectedCollegeCode) {
+            const resultsContent = document.getElementById('results-content');
+            
+            // Get college name for display
+            let selectedCollegeName = '';
+            if (selectedCollegeCode) {
+                const collegeInfo = allColleges.get(parseInt(selectedCollegeCode));
+                if (collegeInfo) {
+                    selectedCollegeName = `${collegeInfo.code} - ${collegeInfo.name}`;
+                }
+            }
+            
+            if (results.length === 0) {
+                resultsContent.innerHTML = `
+                    <div class="no-results">
+                        <h3>No eligible colleges found</h3>
+                        <p>Based on your rank ${userRank} in ${category} category${selectedBranch ? ' for ' + selectedBranch : ''}${selectedCollegeName ? ' at ' + selectedCollegeName : ''}, no colleges are currently eligible.</p>
+                        <p>Try adjusting your search criteria or selecting different options.</p>
+                    </div>
+                    <div class="page-counter">
+                        👁️ Page Views: ${pageViews.toLocaleString()}
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = `
+                <div class="results-header">
+                    <h3>Eligible Colleges (${results.length} total)</h3>
+                    <p>Rank: <strong>${userRank}</strong> | Category: <strong>${category}</strong>${selectedBranch ? ' | Branch: <strong>' + selectedBranch + '</strong>' : ''}${selectedCollegeName ? ' | College: <strong>' + (selectedCollegeName.length > 40 ? selectedCollegeName.substring(0, 37) + '...' : selectedCollegeName) + '</strong>' : ''}</p>
+                </div>
+                ${renderPagination(results.length)}
+                <div class="results-table-container">
+                    <table class="results-table">
+                        <thead>
+                            <tr>
+                                <th>S.No</th>
+                                <th>College Code</th>
+                                <th>College Name</th>
+                                <th>Branch Code</th>
+                                <th>Branch Name</th>
+                                <th>${category} Cutoff</th>
+                                <th>2025 Prediction</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            const startIndex = currentPage * resultsPerPage;
+            const endIndex = startIndex + resultsPerPage;
+            const paginatedResults = results.slice(startIndex, endIndex);
+            
+            paginatedResults.forEach((college, index) => {
+                const globalIndex = startIndex + index + 1;
+                const tooltipText = `Predicted 2025 cutoff: ${college.prediction2025.predictedCutoff} | Historical: ${college.prediction2025.historicalData}`;
+                
+                html += `
+                    <tr>
+                        <td>${globalIndex}</td>
+                        <td>${college.collegeCode}</td>
+                        <td class="college-name">${college.collegeName}</td>
+                        <td>${college.branchCode}</td>
+                        <td class="branch-name">${college.branchName}</td>
+                        <td class="cutoff-rank">${college.cutoffRank}</td>
+                        <td class="prediction-cell">
+                            <div class="prediction-probability">${college.prediction2025.probability}</div>
+                            <div class="prediction-details" data-tooltip="${tooltipText}">i</div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+                ${renderPagination(results.length)}
+                <div style="padding: 12px 15px; background: #f8fafc; border-top: 1px solid #e2e8f0; color: #718096; font-size: 0.8rem;">
+                    <p><strong>Note:</strong> Cutoff ranks are from previous year data. 2025 predictions are estimates based on historical trends.</p>
+                </div>
+                <div class="page-counter">
+                    👁️ Page Views: ${pageViews.toLocaleString()}
+                </div>
+            `;
+            
+            resultsContent.innerHTML = html;
+        }
+
+        function renderPagination(totalResults) {
+            const totalPages = Math.ceil(totalResults / resultsPerPage);
+            
+            if (totalPages <= 1) {
+                return '';
+            }
+            
+            let html = `
+                <div class="pagination">
+                    <button onclick="changePage(${currentPage - 1})" ${currentPage === 0 ? 'disabled' : ''} class="pagination-btn">
+                        ← Previous
+                    </button>
+                    <span class="pagination-info">
+                        Page ${currentPage + 1} of ${totalPages} (${totalResults} results)
+                    </span>
+                    <button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages - 1 ? 'disabled' : ''} class="pagination-btn">
+                        Next →
+                    </button>
+                </div>
+            `;
+            
+            return html;
+        }
+
+        function changePage(newPage) {
+            const totalPages = Math.ceil(currentResults.length / resultsPerPage);
+            
+            if (newPage < 0 || newPage >= totalPages) {
+                return;
+            }
+            
+            currentPage = newPage;
+            const category = document.getElementById('category').value;
+            const userRank = parseInt(document.getElementById('rank').value);
+            const selectedBranch = document.getElementById('branch').value;
+            const selectedCollegeCode = document.getElementById('college').value;
+            
+            displayResults(currentResults, category, userRank, selectedBranch, selectedCollegeCode);
+        }
+    </script>
+</body>
+</html>
